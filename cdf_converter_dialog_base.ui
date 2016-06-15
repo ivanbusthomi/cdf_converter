@@ -1,33 +1,144 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>CdfConverterDialogBase</class>
- <widget class="QDialog" name="CdfConverterDialogBase" >
-  <property name="geometry" >
+ <widget class="QDialog" name="CdfConverterDialogBase">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>526</width>
+    <height>427</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>CDF Converter</string>
   </property>
-  <widget class="QDialogButtonBox" name="button_box" >
-   <property name="geometry" >
-    <rect>
-     <x>30</x>
-     <y>240</y>
-     <width>341</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation" >
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons" >
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <widget class="QGroupBox" name="group_input">
+     <property name="title">
+      <string>Input</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Input File (netcdf file)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLineEdit" name="input_path"/>
+        </item>
+        <item>
+         <widget class="QToolButton" name="browse_input">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Select Variable</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="select_var"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Select Timeslice</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="select_time"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Title</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="input_title"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Source</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="input_source"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="group_output">
+     <property name="title">
+      <string>Output</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="use_output_default">
+        <property name="text">
+         <string>Same directory as input file</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLineEdit" name="ouput_path"/>
+        </item>
+        <item>
+         <widget class="QToolButton" name="browse_output">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>The output will be a .tiff raster file</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="load_result">
+        <property name="text">
+         <string>Add output layer to QGIS project</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="button_box">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections>
@@ -37,13 +148,13 @@
    <receiver>CdfConverterDialogBase</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="source_label" >
-     <x>248</x>
-     <y>254</y>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
-    <hint type="destination_label" >
-     <x>157</x>
-     <y>274</y>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
    </hints>
   </connection>
@@ -53,13 +164,13 @@
    <receiver>CdfConverterDialogBase</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="source_label" >
-     <x>316</x>
-     <y>260</y>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
-    <hint type="destination_label" >
-     <x>286</x>
-     <y>274</y>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
    </hints>
   </connection>
