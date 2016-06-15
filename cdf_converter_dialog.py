@@ -41,6 +41,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+
     
     def on_browse_input_pressed(self):
         """
@@ -51,7 +52,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             self.tr("netCDF Files(*.nc *.cdf *.nc2 *.nc4)"))
         if input_file is not None:
             self.input_path.setText(input_file)
-            self.get_subdatasets()
+
 
     def on_browse_output_pressed(self):
         """
@@ -63,6 +64,9 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         if output_file is not None:
             self.output_path.setText(output_file)
 
+    def on_input_path_textChanged(self):
+        self.get_subdatasets()
+
     def get_subdatasets(self):
         file_path = self.input_path.text()
         netcdf = gdal.Open(file_path)
@@ -71,6 +75,16 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             list_subdatasets.append(sd[0].split(':')[-1])
         for sd in list_subdatasets:
             self.select_var.addItem(sd)
+
+    def get_bands(self):
+        file_path = self.input_path.text()
+        subdatasets = self.select_var.currentText()
+        netcdf_sd = gdal.Open('NETCDF:"' + file_path + '":+subdatasets')
+        md = netcdf_sd.GetMetadata()
+        bands = md['NETCDF_DIM_time_VALUES'].translate(None,'{}')
+        bands_list = bands.split(',')
+        for band in bands_list:
+            self.select_time.addItem(band)
 
     def accept(self):
         """
