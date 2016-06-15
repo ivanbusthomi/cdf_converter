@@ -23,7 +23,9 @@
 
 import os
 
-from PyQt4 import QtGui, uic
+from PyQt4 import uic, QtGui, QtCore
+from qgis.core import *
+from osgeo import gdal
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'cdf_converter_dialog_base.ui'))
@@ -39,3 +41,40 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+    
+    def on_browse_input_pressed(self):
+        """
+        get input file
+        """
+        input_file = QtGui.QFileDialog.getOpenFileName(
+            self, self.tr("Open File"), "",
+            self.tr("netCDF Files(*.nc *.cdf *.nc2 *.nc4)"))
+        if input_file is not None:
+            self.input_path.setText(input_file)
+            self.get_subdatasets()
+
+    def on_browse_output_pressed(self):
+        """
+        define output location
+        """
+        output_file = QtGui.QFileDialog.getSaveFileName(
+            self, self.tr("Output File"), "Volcanic_Ash.tif",
+            self.tr("Raster File (*.tif)"));
+        if output_file is not None:
+            self.output_path.setText(output_file)
+
+    def get_subdatasets(self):
+        file_path = self.input_path.text()
+        netcdf = gdal.Open(file_path)
+        list_subdatasets = []
+        for sd in netcdf.GetSubDatasets():
+            list_subdatasets.append(sd[0].split(':')[-1])
+        for sd in list_subdatasets:
+            self.select_var.addItem(sd)
+
+    def accept(self):
+        """
+        Handle OK button
+        """
+        print self.input_path.text()
+        print self.output_path.text()
