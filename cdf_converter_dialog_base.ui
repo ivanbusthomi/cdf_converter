@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>427</height>
+    <height>513</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,22 +44,22 @@
       <item>
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Select Variable</string>
+         <string>Select Subdataset</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="select_var"/>
+       <widget class="QComboBox" name="select_subdataset"/>
       </item>
       <item>
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Select Timeslice</string>
+         <string>Select Band</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="select_time"/>
+       <widget class="QComboBox" name="select_band"/>
       </item>
       <item>
        <widget class="QLabel" name="label_4">
@@ -156,8 +156,8 @@
  <tabstops>
   <tabstop>input_path</tabstop>
   <tabstop>browse_input</tabstop>
-  <tabstop>select_var</tabstop>
-  <tabstop>select_time</tabstop>
+  <tabstop>select_subdataset</tabstop>
+  <tabstop>select_band</tabstop>
   <tabstop>input_title</tabstop>
   <tabstop>input_source</tabstop>
   <tabstop>use_output_default</tabstop>

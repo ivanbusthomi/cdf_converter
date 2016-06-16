@@ -42,10 +42,6 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-        self.layer_title = self.input_title.currentText()
-        self.layer_source = self.input_source.currentText()
-        self.file_path = self.on_input_path_textChanged().text()
-        self.file_dir = os.path.dirname(self.file_path)
 
     def on_browse_input_pressed(self):
         """
@@ -69,6 +65,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             self.output_path.setText(output_file)
 
     def on_input_path_textChanged(self):
+        self.file_path = self.input_path.text()
         self.get_subdatasets()
 
     def get_subdatasets(self):
@@ -114,6 +111,8 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         # check if default folder is used
         if not self.use_default_dir.isChecked():
             file_dir = self.output_path.text()
-        
+        self.layer_title = self.input_title.text()
+        self.layer_source = self.input_source.text()
+        self.file_dir = os.path.dirname(self.file_path)
 
 
