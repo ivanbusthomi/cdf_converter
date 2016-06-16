@@ -21,10 +21,10 @@
  ***************************************************************************/
 """
 
-import os
+import os, subprocess
 
 from PyQt4 import uic, QtGui, QtCore
-from PyQt4.QtCore import pyqtSlot
+from PyQt4.QtCore import pyqtSlot, QFileInfo
 from qgis.core import *
 from osgeo import gdal
 
@@ -58,14 +58,16 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         """
         define output location
         """
+        layer_title = self.input_title.text()
         output_file = QtGui.QFileDialog.getSaveFileName(
-            self, self.tr("Output File"), "Volcanic_Ash.tif",
-            self.tr("Raster File (*.tif)"));
+            self, self.tr("Output File"), layer_title+".tif",
+            self.tr("GeoTiff File (*.tif)"));
         if output_file is not None:
             self.output_path.setText(output_file)
 
     def on_input_path_textChanged(self):
         self.file_path = self.input_path.text()
+        self.file_dir = os.path.dirname(self.file_path)
         self.get_subdatasets()
 
     def get_subdatasets(self):
@@ -100,19 +102,27 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             print "No Timeslice detected"
 
     @pyqtSlot(int) # avoid currentIndexChanged signal to be emitted twice
-    def on_select_band_currentIndexChaned(self):
-        self.band = self.select_band.currentText()
-
+    def on_select_band_currentIndexChanged(self):
+        self.band = str(self.select_band.currentIndex() + 1)
+        self.input_title.setText(self.select_subdataset.currentText()+"_"+self.select_band.currentText())
+        self.display_log.clear()
+        self.display_log.append("NetCDF path " + self.file_path)
+        self.display_log.append("Current SubDataset is " + self.subdataset)
+        self.display_log.append("Current Band is " + self.band)
 
     def accept(self):
         """
         Handle OK button
         """
+        layer_title = self.input_title.text()
+        layer_source = self.input_source.text()
+        netcdf_uri = 'NETCDF:"'+self.file_path+'":'+self.subdataset
+        output_uri = self.file_dir + "/" + layer_title + ".tif"
         # check if default folder is used
         if not self.use_default_dir.isChecked():
-            file_dir = self.output_path.text()
-        self.layer_title = self.input_title.text()
-        self.layer_source = self.input_source.text()
-        self.file_dir = os.path.dirname(self.file_path)
-
-
+            self.file_dir = self.output_path.text()
+            output_uri = self.file_dir
+        self.display_log.append("Result path " + output_uri)
+        full_cmd = 'gdal_translate -b ' + self.band + ' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
+        subprocess.Popen(full_cmd)
+        

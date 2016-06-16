@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>513</height>
+    <height>504</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,7 +91,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QCheckBox" name="use_output_default">
+       <widget class="QCheckBox" name="use_default_dir">
         <property name="text">
          <string>Same directory as input file</string>
         </property>
@@ -128,18 +128,11 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QCheckBox" name="load_result">
-        <property name="text">
-         <string>Add output layer to QGIS project</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="display_log"/>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="button_box">
@@ -147,7 +140,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Close|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -160,10 +153,9 @@
   <tabstop>select_band</tabstop>
   <tabstop>input_title</tabstop>
   <tabstop>input_source</tabstop>
-  <tabstop>use_output_default</tabstop>
+  <tabstop>use_default_dir</tabstop>
   <tabstop>output_path</tabstop>
   <tabstop>browse_output</tabstop>
-  <tabstop>load_result</tabstop>
   <tabstop>button_box</tabstop>
  </tabstops>
  <resources/>
@@ -201,7 +193,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>use_output_default</sender>
+   <sender>use_default_dir</sender>
    <signal>toggled(bool)</signal>
    <receiver>browse_output</receiver>
    <slot>setDisabled(bool)</slot>
@@ -217,7 +209,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>use_output_default</sender>
+   <sender>use_default_dir</sender>
    <signal>toggled(bool)</signal>
    <receiver>output_path</receiver>
    <slot>setDisabled(bool)</slot>
