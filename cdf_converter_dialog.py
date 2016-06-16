@@ -24,6 +24,7 @@
 import os
 
 from PyQt4 import uic, QtGui, QtCore
+from PyQt4.QtCore import pyqtSlot
 from qgis.core import *
 from osgeo import gdal
 
@@ -41,8 +42,11 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.layer_title = self.input_title.currentText()
+        self.layer_source = self.input_source.currentText()
+        self.file_path = self.on_input_path_textChanged().text()
+        self.file_dir = os.path.dirname(self.file_path)
 
-    
     def on_browse_input_pressed(self):
         """
         get input file
@@ -68,27 +72,48 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         self.get_subdatasets()
 
     def get_subdatasets(self):
-        file_path = self.input_path.text()
-        netcdf = gdal.Open(file_path)
+        self.select_subdataset.clear()
+        netcdf = gdal.Open(self.file_path)
         list_subdatasets = []
         for sd in netcdf.GetSubDatasets():
             list_subdatasets.append(sd[0].split(':')[-1])
         for sd in list_subdatasets:
-            self.select_var.addItem(sd)
+            self.select_subdataset.addItem(sd)
+
+    @pyqtSlot(int)  # avoid currentIndexChanged signal to be emitted twice
+    def on_select_subdataset_currentIndexChanged(self):
+        self.subdataset = self.select_subdataset.currentText()
+        self.get_bands()
 
     def get_bands(self):
-        file_path = self.input_path.text()
-        subdatasets = self.select_var.currentText()
-        netcdf_sd = gdal.Open('NETCDF:"' + file_path + '":+subdatasets')
-        md = netcdf_sd.GetMetadata()
-        bands = md['NETCDF_DIM_time_VALUES'].translate(None,'{}')
-        bands_list = bands.split(',')
-        for band in bands_list:
-            self.select_time.addItem(band)
+        self.select_band.clear()
+        netcdf_sd_path = 'NETCDF:"' + self.file_path + '":' + self.subdataset
+        print netcdf_sd_path
+        netcdf_sd = gdal.Open(netcdf_sd_path)
+        metadata = netcdf_sd.GetMetadata()
+        metadata_list = []
+        for key,value in metadata.iteritems():
+            metadata_list.append(key)
+        if 'NETCDF_DIM_time_VALUES' in metadata_list:
+            bands = metadata['NETCDF_DIM_time_VALUES'].translate(None,'{}')
+            bands_list = bands.split(',')
+            for band in bands_list:
+                self.select_band.addItem(band)
+        else:
+            print "No Timeslice detected"
+
+    @pyqtSlot(int) # avoid currentIndexChanged signal to be emitted twice
+    def on_select_band_currentIndexChaned(self):
+        self.band = self.select_band.currentText()
+
 
     def accept(self):
         """
         Handle OK button
         """
-        print self.input_path.text()
-        print self.output_path.text()
+        # check if default folder is used
+        if not self.use_default_dir.isChecked():
+            file_dir = self.output_path.text()
+        
+
+
