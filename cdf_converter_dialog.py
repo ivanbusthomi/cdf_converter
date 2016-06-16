@@ -115,7 +115,6 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         Handle OK button
         """
         layer_title = self.input_title.text()
-        layer_source = self.input_source.text()
         netcdf_uri = 'NETCDF:"'+self.file_path+'":'+self.subdataset
         output_uri = self.file_dir + "/" + layer_title + ".tif"
         # check if default folder is used

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>504</height>
+    <height>436</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -70,16 +70,6 @@
       </item>
       <item>
        <widget class="QLineEdit" name="input_title"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Source</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="input_source"/>
       </item>
      </layout>
     </widget>
@@ -152,7 +142,6 @@
   <tabstop>select_subdataset</tabstop>
   <tabstop>select_band</tabstop>
   <tabstop>input_title</tabstop>
-  <tabstop>input_source</tabstop>
   <tabstop>use_default_dir</tabstop>
   <tabstop>output_path</tabstop>
   <tabstop>browse_output</tabstop>
