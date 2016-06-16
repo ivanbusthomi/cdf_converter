@@ -123,5 +123,5 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             output_uri = self.file_dir
         self.display_log.append("Result path " + output_uri)
         full_cmd = 'gdal_translate -b ' + self.band + ' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
-        subprocess.Popen(full_cmd)
+        subprocess.Popen(full_cmd, shell=True)
         
