@@ -21,9 +21,12 @@
  ***************************************************************************/
 """
 
-import os
+import os, subprocess
 
-from PyQt4 import QtGui, uic
+from PyQt4 import uic, QtGui, QtCore
+from PyQt4.QtCore import pyqtSlot, QFileInfo
+from qgis.core import *
+from osgeo import gdal
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'cdf_converter_dialog_base.ui'))
@@ -39,3 +42,86 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+
+    def on_browse_input_pressed(self):
+        """
+        get input file
+        """
+        input_file = QtGui.QFileDialog.getOpenFileName(
+            self, self.tr("Open File"), "",
+            self.tr("netCDF Files(*.nc *.cdf *.nc2 *.nc4)"))
+        if input_file is not None:
+            self.input_path.setText(input_file)
+
+
+    def on_browse_output_pressed(self):
+        """
+        define output location
+        """
+        layer_title = self.input_title.text()
+        output_file = QtGui.QFileDialog.getSaveFileName(
+            self, self.tr("Output File"), layer_title+".tif",
+            self.tr("GeoTiff File (*.tif)"));
+        if output_file is not None:
+            self.output_path.setText(output_file)
+
+    def on_input_path_textChanged(self):
+        self.file_path = self.input_path.text()
+        self.file_dir = os.path.dirname(self.file_path)
+        self.get_subdatasets()
+
+    def get_subdatasets(self):
+        self.select_subdataset.clear()
+        netcdf = gdal.Open(self.file_path)
+        list_subdatasets = []
+        for sd in netcdf.GetSubDatasets():
+            list_subdatasets.append(sd[0].split(':')[-1])
+        for sd in list_subdatasets:
+            self.select_subdataset.addItem(sd)
+
+    @pyqtSlot(int)  # avoid currentIndexChanged signal to be emitted twice
+    def on_select_subdataset_currentIndexChanged(self):
+        self.subdataset = self.select_subdataset.currentText()
+        self.get_bands()
+
+    def get_bands(self):
+        self.select_band.clear()
+        netcdf_sd_path = 'NETCDF:"' + self.file_path + '":' + self.subdataset
+        print netcdf_sd_path
+        netcdf_sd = gdal.Open(netcdf_sd_path)
+        metadata = netcdf_sd.GetMetadata()
+        metadata_list = []
+        for key,value in metadata.iteritems():
+            metadata_list.append(key)
+        if 'NETCDF_DIM_time_VALUES' in metadata_list:
+            bands = metadata['NETCDF_DIM_time_VALUES'].translate(None,'{}')
+            bands_list = bands.split(',')
+            for band in bands_list:
+                self.select_band.addItem(band)
+        else:
+            print "No Timeslice detected"
+
+    @pyqtSlot(int) # avoid currentIndexChanged signal to be emitted twice
+    def on_select_band_currentIndexChanged(self):
+        self.band = str(self.select_band.currentIndex() + 1)
+        self.input_title.setText(self.select_subdataset.currentText()+"_"+self.select_band.currentText())
+        self.display_log.clear()
+        self.display_log.append("NetCDF path " + self.file_path)
+        self.display_log.append("Current SubDataset is " + self.subdataset)
+        self.display_log.append("Current Band is " + self.band)
+
+    def accept(self):
+        """
+        Handle OK button
+        """
+        layer_title = self.input_title.text()
+        netcdf_uri = 'NETCDF:"'+self.file_path+'":'+self.subdataset
+        output_uri = self.file_dir + "/" + layer_title + ".tif"
+        # check if default folder is used
+        if not self.use_default_dir.isChecked():
+            self.file_dir = self.output_path.text()
+            output_uri = self.file_dir
+        self.display_log.append("Result path " + output_uri)
+        full_cmd = 'gdal_translate -b ' + self.band + ' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
+        subprocess.Popen(full_cmd, shell=True)
+        
