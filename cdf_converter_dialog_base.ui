@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>436</height>
+    <height>507</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -83,7 +83,7 @@
       <item>
        <widget class="QCheckBox" name="use_default_dir">
         <property name="text">
-         <string>Same directory as input file</string>
+         <string>Same directory as input file. The output will be a .tiff raster file</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -112,11 +112,25 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>The output will be a .tiff raster file</string>
+         <string>Specify CRS for output layer</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLineEdit" name="output_crs"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="select_crs">
+          <property name="text">
+           <string>Browse ...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

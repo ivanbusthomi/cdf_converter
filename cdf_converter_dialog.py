@@ -26,6 +26,7 @@ import os, subprocess
 from PyQt4 import uic, QtGui, QtCore
 from PyQt4.QtCore import pyqtSlot, QFileInfo
 from qgis.core import *
+from qgis.gui import QgsGenericProjectionSelector
 from osgeo import gdal
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -42,6 +43,9 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        #self.crs_selector = QgsGenericProjectionSelector()
+
+
 
     def on_browse_input_pressed(self):
         """
@@ -53,6 +57,15 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         if input_file is not None:
             self.input_path.setText(input_file)
 
+
+    def on_select_crs_pressed(self):
+        crs_selector = QgsGenericProjectionSelector()
+        crs_selector.show()
+        crs_selector.exec_()
+        #self.crs_selector.show()
+        #self.crs_selector.exec_()
+        self.authid = str(crs_selector.selectedAuthId())
+        self.output_crs.setText(self.authid)
 
     def on_browse_output_pressed(self):
         """
@@ -66,9 +79,15 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             self.output_path.setText(output_file)
 
     def on_input_path_textChanged(self):
-        self.file_path = self.input_path.text()
-        self.file_dir = os.path.dirname(self.file_path)
-        self.get_subdatasets()
+        if not os.path.exists(self.input_path.text()):
+            self.display_log.append("Input file does not exist")
+        else:
+            self.display_log.clear()
+            self.display_log.append("Input file loaded")
+            self.file_path = self.input_path.text()
+            self.file_dir = os.path.dirname(self.file_path)
+            self.output_path.setText(self.file_dir)
+            self.get_subdatasets()
 
     def get_subdatasets(self):
         self.select_subdataset.clear()
@@ -85,9 +104,9 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         self.get_bands()
 
     def get_bands(self):
-        self.select_band.clear()
+        #self.select_band.clear()
         netcdf_sd_path = 'NETCDF:"' + self.file_path + '":' + self.subdataset
-        print netcdf_sd_path
+        self.display_log.append(netcdf_sd_path)
         netcdf_sd = gdal.Open(netcdf_sd_path)
         metadata = netcdf_sd.GetMetadata()
         metadata_list = []
@@ -99,7 +118,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             for band in bands_list:
                 self.select_band.addItem(band)
         else:
-            print "No Timeslice detected"
+            self.display_log.append("No Timeslice detected")
 
     @pyqtSlot(int) # avoid currentIndexChanged signal to be emitted twice
     def on_select_band_currentIndexChanged(self):
@@ -122,6 +141,6 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             self.file_dir = self.output_path.text()
             output_uri = self.file_dir
         self.display_log.append("Result path " + output_uri)
-        full_cmd = 'gdal_translate -b ' + self.band + ' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
+        full_cmd = 'gdal_translate -b ' + self.band + ' -a_srs ' + self.authid +' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
         subprocess.Popen(full_cmd, shell=True)
         
