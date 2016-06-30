@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>507</height>
+    <height>464</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,9 +33,9 @@
          <widget class="QLineEdit" name="input_path"/>
         </item>
         <item>
-         <widget class="QToolButton" name="browse_input">
+         <widget class="QPushButton" name="browse_input">
           <property name="text">
-           <string>...</string>
+           <string>Browse ...</string>
           </property>
          </widget>
         </item>
@@ -136,15 +136,15 @@
     </widget>
    </item>
    <item>
-    <widget class="QTextEdit" name="display_log"/>
-   </item>
-   <item>
     <widget class="QDialogButtonBox" name="button_box">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Close|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Ok</set>
+     </property>
+     <property name="centerButtons">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -152,7 +152,6 @@
  </widget>
  <tabstops>
   <tabstop>input_path</tabstop>
-  <tabstop>browse_input</tabstop>
   <tabstop>select_subdataset</tabstop>
   <tabstop>select_band</tabstop>
   <tabstop>input_title</tabstop>
