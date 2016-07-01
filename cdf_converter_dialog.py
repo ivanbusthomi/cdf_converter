@@ -127,6 +127,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         #self.select_band.clear()
         netcdf_sd_path = 'NETCDF:"' + self.file_path + '":' + self.subdataset
         #self.display_log.append(netcdf_sd_path)
+        self.select_band.clear()
         netcdf_sd = gdal.Open(netcdf_sd_path)
         metadata = netcdf_sd.GetMetadata()
         metadata_list = []
@@ -168,6 +169,13 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         #self.display_log.append("Result path " + output_uri)
         full_cmd = 'gdal_translate -b ' + self.band + ' -a_srs ' + self.authid +' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
         subprocess.Popen(full_cmd, shell=True)
+        file_info = QFileInfo(output_uri)
+        base_name = file_info.baseName()
+        result_layer = QgsRasterLayer(output_uri, base_name)
+        if not result_layer.isValid():
+            print "Layer is invalid"
+        else:
+            QgsMapLayerRegistry.instance().addMapLayers([result_layer])
 
     def closeEvent(self, QCloseEvent):
         """
