@@ -12,11 +12,18 @@ tracker=https://github.com/ivanbusthomi/cdf_converter
 repository=https://github.com/ivanbusthomi/cdf_converter
 
 # Uncomment the following line and add your changelog:
-changelog=
-- Added CRS selection
-- Result automatically added to Table of Content
-- Improve handling closing plugin dialog
-- Improve handling changing the data
+changelog= 1.1.0
+    - Added CRS selection
+    - Result automatically added to Table of Content
+    - Improve handling closing plugin dialog
+    - Improve handling changing the data
+
+    1.0.0
+    - Open NetCDF file (.nc) and convert it to GeoTiff format (.tiff)
+    - Select subdatasets (variable) and timeslice (band)
+    - Automatically and manually specify result title
+    - Save convert result to specific directory, or in a same directory with input
+
 
 # Tags are comma separated with spaces allowed
 tags= netcdf,tiff,convert,raster
