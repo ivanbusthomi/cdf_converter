@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>464</height>
+    <height>393</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,12 +28,33 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="InputDirectory">
         <item>
          <widget class="QLineEdit" name="input_path"/>
         </item>
         <item>
          <widget class="QPushButton" name="browse_input">
+          <property name="text">
+           <string>Browse ...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Specify CRS for input layer</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="InputCRS">
+        <item>
+         <widget class="QLineEdit" name="input_crs"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="browse_input_crs">
           <property name="text">
            <string>Browse ...</string>
           </property>
@@ -91,7 +112,7 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <layout class="QHBoxLayout" name="OutputDirectory">
         <item>
          <widget class="QLineEdit" name="output_path">
           <property name="enabled">
@@ -106,27 +127,6 @@
           </property>
           <property name="text">
            <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Specify CRS for output layer</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLineEdit" name="output_crs"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="select_crs">
-          <property name="text">
-           <string>Browse ...</string>
           </property>
          </widget>
         </item>
@@ -169,8 +169,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>9</x>
-     <y>395</y>
+     <x>18</x>
+     <y>435</y>
     </hint>
     <hint type="destinationlabel">
      <x>20</x>
@@ -185,8 +185,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>9</x>
-     <y>395</y>
+     <x>18</x>
+     <y>435</y>
     </hint>
     <hint type="destinationlabel">
      <x>20</x>

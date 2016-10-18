@@ -25,9 +25,10 @@ import os, subprocess
 
 from PyQt4 import uic, QtGui, QtCore
 from PyQt4.QtCore import pyqtSlot, QFileInfo
+from PyQt4.QtGui import QPushButton
 from qgis.core import *
-from qgis.gui import QgsGenericProjectionSelector
-from qgis.utils import reloadPlugin
+from qgis.gui import QgsGenericProjectionSelector, QgsMessageBar
+from qgis.utils import reloadPlugin, iface
 from osgeo import gdal
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -35,7 +36,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 
 class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
-    def __init__(self, parent=None, ):
+    def __init__(self, iface, parent=None, ):
         """Constructor."""
         #QtGui.QDialog.__init__(self, None, QtCore.Qt.WindowStaysOnTopHint)
         super(CdfConverterDialog, self).__init__(parent, QtCore.Qt.WindowStaysOnTopHint)
@@ -45,6 +46,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.iface = iface
 
     def on_browse_input_pressed(self):
         """
@@ -57,18 +59,34 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             self.input_path.setText(input_file)
 
 
-    def on_select_crs_pressed(self):
+    def on_browse_input_crs_pressed(self):
         """
-        define output crs
+        define input crs
         :return:
         """
         crs_selector = QgsGenericProjectionSelector()
         crs_selector.show()
         crs_selector.exec_()
-        self.authid = str(crs_selector.selectedAuthId())
+        self.input_authid = str(crs_selector.selectedAuthId())
         selected_crs = QgsCoordinateReferenceSystem()
-        selected_crs.createFromString(self.authid)
-        self.output_crs.setText(selected_crs.description() + "    (" + self.authid+")")
+        selected_crs.createFromString(self.input_authid)
+        self.input_crs.setText(selected_crs.description() + "    (" + self.input_authid+")")
+        # check if same crs in output crs is checked
+        # if self.use_input_crs.isChecked():
+        #     self.output_crs.setText(selected_crs.description() + "    (" + self.input_authid+")")
+
+    # def on_browse_output_crs_pressed(self):
+    #     """
+    #     define output crs
+    #     :return:
+    #     """
+    #     crs_selector = QgsGenericProjectionSelector()
+    #     crs_selector.show()
+    #     crs_selector.exec_()
+    #     self.output_authid = str(crs_selector.selectedAuthId())
+    #     selected_crs = QgsCoordinateReferenceSystem()
+    #     selected_crs.createFromString(self.output_authid)
+    #     self.output_crs.setText(selected_crs.description() + "    (" + self.output_authid+")")
 
     def on_browse_output_pressed(self):
         """
@@ -88,7 +106,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         """
         if not os.path.exists(self.input_path.text()):
             #self.display_log.append("Input file does not exist")
-            print "Input file does not exist"
+            QgsMessageLog.logMessage("Input file directory is empty or does not exist")
         else:
             #self.display_log.clear()
             #self.display_log.append("Input file loaded")
@@ -167,15 +185,37 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             self.file_dir = self.output_path.text()
             output_uri = self.file_dir
         #self.display_log.append("Result path " + output_uri)
-        full_cmd = 'gdal_translate -b ' + self.band + ' -a_srs ' + self.authid +' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
+        full_cmd = 'gdal_translate -b ' + self.band + ' -a_srs ' + self.input_authid +' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
         subprocess.Popen(full_cmd, shell=True)
+        # if not self.use_input_crs.isChecked():
+        #     transformed_uri = self.file_dir + "/" + layer_title + "_transformed.tif"
+        #     transform_cmd = 'gdalwarp -overwrite -s_srs ' + self.input_authid + ' -t_srs '+ self.output_authid +' -of GTiff ' + output_uri + '' + transformed_uri +''
+        #     subprocess.Popen(transform_cmd, shell=True)
+        #     output_uri = transformed_uri
         file_info = QFileInfo(output_uri)
         base_name = file_info.baseName()
         result_layer = QgsRasterLayer(output_uri, base_name)
+        result_layer.isValid()
         if not result_layer.isValid():
-            print "Layer is invalid"
+            QgsMessageLog.logMessage("Layer is invalid")
+            msg_bar = self.iface.messageBar().createMessage("Warning", "Layer is not loaded automatically")
+            self.uri = output_uri
+            self.base_name = base_name
+            button_load_result = QPushButton(msg_bar)
+            button_load_result.setText("Load Result")
+            button_load_result.pressed.connect(self.load_manually)
+            msg_bar.layout().addWidget(button_load_result)
+            self.iface.messageBar().pushWidget(msg_bar, QgsMessageBar.WARNING, duration=30)
         else:
-            QgsMapLayerRegistry.instance().addMapLayers([result_layer])
+            QgsMapLayerRegistry.instance().addMapLayer(result_layer)
+
+    def load_manually(self):
+        QgsMessageLog.logMessage("Loading result manually")
+        result = QgsRasterLayer(self.uri, self.base_name)
+        if not result.isValid():
+            QgsMessageLog.logMessage("Result layer is still invalid")
+        else:
+            QgsMapLayerRegistry.instance().addMapLayers([result])
 
     def closeEvent(self, QCloseEvent):
         """
@@ -195,7 +235,8 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         self.select_band.clear()
         self.select_subdataset.clear()
         self.input_title.clear()
-        self.output_crs.clear()
+        self.input_crs.clear()
         #self.display_log.clear()
         self.close()
         reloadPlugin('CdfConverter')
+        

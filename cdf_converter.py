@@ -61,7 +61,7 @@ class CdfConverter:
                 QCoreApplication.installTranslator(self.translator)
 
         # Create the dialog (after translation) and keep reference
-        self.dlg = CdfConverterDialog()
+        self.dlg = CdfConverterDialog(iface)
 
         # Declare instance attributes
         self.actions = []
