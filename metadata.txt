@@ -4,11 +4,11 @@
 name=CDF Converter
 qgisMinimumVersion=2.0
 description=This is a tool to convert a netcdf data to tiff raster file
-version=1.1.0
+version=1.1.1
 author=Ivan Busthomi
 email=ivanbusthomi@gmail.com
 about=This is a tool to convert a netcdf data to tiff raster file
-tracker=https://github.com/ivanbusthomi/cdf_converter
+tracker=https://github.com/ivanbusthomi/cdf_converter/issues
 repository=https://github.com/ivanbusthomi/cdf_converter
 
 # Uncomment the following line and add your changelog:
@@ -36,7 +36,7 @@ category=Plugins
 icon=icon.png
 
 # experimental flag
-experimental=True
+experimental=False
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
 
