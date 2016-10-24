@@ -205,7 +205,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             button_load_result.setText("Load Result")
             button_load_result.pressed.connect(self.load_manually)
             msg_bar.layout().addWidget(button_load_result)
-            self.iface.messageBar().pushWidget(msg_bar, QgsMessageBar.WARNING, duration=30)
+            self.iface.messageBar().pushWidget(msg_bar, QgsMessageBar.WARNING, duration=15)
         else:
             QgsMapLayerRegistry.instance().addMapLayer(result_layer)
 
