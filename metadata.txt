@@ -12,8 +12,12 @@ tracker=https://github.com/ivanbusthomi/cdf_converter
 repository=https://github.com/ivanbusthomi/cdf_converter
 
 # Uncomment the following line and add your changelog:
-changelog= 1.1.0
-    - Added CRS selection
+changelog= 1.1.1
+    - move crs selection to input
+	- add ui message if output layer failed to be loaded automatically
+	
+	1.1.0
+	- Added CRS selection
     - Result automatically added to Table of Content
     - Improve handling closing plugin dialog
     - Improve handling changing the data
