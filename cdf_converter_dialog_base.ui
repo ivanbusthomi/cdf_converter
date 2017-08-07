@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>393</height>
+    <height>532</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,21 +42,38 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Specify CRS for input layer</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="InputCRS">
-        <item>
-         <widget class="QLineEdit" name="input_crs"/>
-        </item>
-        <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="1" column="2">
          <widget class="QPushButton" name="browse_input_crs">
           <property name="text">
            <string>Browse ...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="input_crsid_input">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>100</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="input_crs_input"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Specify CRS for input layer</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>CRS ID</string>
           </property>
          </widget>
         </item>
@@ -102,6 +119,44 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="output_crsid_input">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>100</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="browse_output_crs">
+          <property name="text">
+           <string>Browse ...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="output_crs_input"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Specify CRS for output layer</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>CRS ID</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QCheckBox" name="use_default_dir">
         <property name="text">
          <string>Same directory as input file. The output will be a .tiff raster file</string>
@@ -112,7 +167,7 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="OutputDirectory">
+       <layout class="QHBoxLayout" name="output_directory">
         <item>
          <widget class="QLineEdit" name="output_path">
           <property name="enabled">
@@ -121,12 +176,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="browse_output">
+         <widget class="QPushButton" name="browse_output_path">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>...</string>
+           <string>Browse ...</string>
           </property>
          </widget>
         </item>
@@ -156,8 +211,6 @@
   <tabstop>select_band</tabstop>
   <tabstop>input_title</tabstop>
   <tabstop>use_default_dir</tabstop>
-  <tabstop>output_path</tabstop>
-  <tabstop>browse_output</tabstop>
   <tabstop>button_box</tabstop>
  </tabstops>
  <resources/>
@@ -197,7 +250,7 @@
   <connection>
    <sender>use_default_dir</sender>
    <signal>toggled(bool)</signal>
-   <receiver>browse_output</receiver>
+   <receiver>browse_output_path</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -205,8 +258,8 @@
      <y>300</y>
     </hint>
     <hint type="destinationlabel">
-     <x>493</x>
-     <y>325</y>
+     <x>464</x>
+     <y>463</y>
     </hint>
    </hints>
   </connection>
@@ -221,8 +274,8 @@
      <y>300</y>
     </hint>
     <hint type="destinationlabel">
-     <x>247</x>
-     <y>325</y>
+     <x>221</x>
+     <y>463</y>
     </hint>
    </hints>
   </connection>

@@ -67,26 +67,28 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         crs_selector = QgsGenericProjectionSelector()
         crs_selector.show()
         crs_selector.exec_()
-        self.input_authid = str(crs_selector.selectedAuthId())
+        input_authid = str(crs_selector.selectedAuthId())
         selected_crs = QgsCoordinateReferenceSystem()
-        selected_crs.createFromString(self.input_authid)
-        self.input_crs.setText(selected_crs.description() + "    (" + self.input_authid+")")
+        selected_crs.createFromString(input_authid)
+        # self.input_crs.setText(selected_crs.description() + " (" + self.input_authid+")")
         # check if same crs in output crs is checked
         # if self.use_input_crs.isChecked():
         #     self.output_crs.setText(selected_crs.description() + "    (" + self.input_authid+")")
+        self.input_crsid_input.setText(str(selected_crs.postgisSrid()))
 
-    # def on_browse_output_crs_pressed(self):
-    #     """
-    #     define output crs
-    #     :return:
-    #     """
-    #     crs_selector = QgsGenericProjectionSelector()
-    #     crs_selector.show()
-    #     crs_selector.exec_()
-    #     self.output_authid = str(crs_selector.selectedAuthId())
-    #     selected_crs = QgsCoordinateReferenceSystem()
-    #     selected_crs.createFromString(self.output_authid)
-    #     self.output_crs.setText(selected_crs.description() + "    (" + self.output_authid+")")
+    def on_browse_output_crs_pressed(self):
+        """
+        define output crs
+        :return:
+        """
+        crs_selector = QgsGenericProjectionSelector()
+        crs_selector.show()
+        crs_selector.exec_()
+        output_authid = str(crs_selector.selectedAuthId())
+        selected_crs = QgsCoordinateReferenceSystem()
+        selected_crs.createFromString(output_authid)
+        # self.output_crs.setText(selected_crs.description())
+        self.output_crsid_input.setText(str(selected_crs.postgisSrid()))
 
     def on_browse_output_pressed(self):
         """
@@ -114,6 +116,33 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             self.file_dir = os.path.dirname(self.file_path)
             self.output_path.setText(self.file_dir)
             self.get_subdatasets()
+
+    def crs_from_id(self, crsid):
+        """
+        Get CRS name from input CRS ID
+        :param crsid: CRS ID
+        :type crsid: Int
+        :return: crs
+        :rtype: QgsCoordinateReferenceSystem()
+        """
+        new_crs = QgsCoordinateReferenceSystem()
+        new_crs.createFromId(crsid)
+        return new_crs
+
+    def on_output_crsid_input_textChanged(self):
+        try:
+            self.output_crs = self.crs_from_id(int(self.output_crsid_input.text()))
+            self.output_crs_input.setText(self.output_crs.description())
+        except ValueError:
+            self.output_crs_input.setText("CRS not found")
+
+    def on_input_crsid_input_textChanged(self):
+        try:
+            self.input_crs = self.crs_from_id(int(self.input_crsid_input.text()))
+            self.input_crs_input.setText(self.input_crs.description())
+        except ValueError:
+            self.input_crs_input.setText("CRS not found")
+
 
     def get_subdatasets(self):
         """
@@ -185,7 +214,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             self.file_dir = self.output_path.text()
             output_uri = self.file_dir
         #self.display_log.append("Result path " + output_uri)
-        full_cmd = 'gdal_translate -b ' + self.band + ' -a_srs ' + self.input_authid +' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
+        full_cmd = 'gdal_translate -b ' + self.band + ' -a_srs ' + self.input_crs.authid() +' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
         subprocess.Popen(full_cmd, shell=True)
         # if not self.use_input_crs.isChecked():
         #     transformed_uri = self.file_dir + "/" + layer_title + "_transformed.tif"
@@ -235,7 +264,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         self.select_band.clear()
         self.select_subdataset.clear()
         self.input_title.clear()
-        self.input_crs.clear()
+        self.input_crs_input.clear()
         #self.display_log.clear()
         self.close()
         reloadPlugin('CdfConverter')
