@@ -47,6 +47,9 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.iface = iface
+        # assign initial value of output crs to WGS84 because mostly the result will be used for inasafe realtime,
+        # and it needs an input layer in WGS84
+        self.output_crsid_input.setText('4326')
 
     def on_browse_input_pressed(self):
         """
@@ -187,7 +190,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
                 self.select_band.addItem(band)
         else:
             pass
-            #self.display_log.append("No Timeslice detected")
+
 
     @pyqtSlot(int) # avoid currentIndexChanged signal to be emitted twice
     def on_select_band_currentIndexChanged(self):
@@ -197,15 +200,14 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         """
         self.band = str(self.select_band.currentIndex() + 1)
         self.input_title.setText(self.select_subdataset.currentText()+"_"+self.select_band.currentText())
-        #self.display_log.clear()
-        #self.display_log.append("NetCDF path " + self.file_path)
-        #self.display_log.append("Current SubDataset is " + self.subdataset)
-        #self.display_log.append("Current Band is " + self.band)
+
 
     def accept(self):
         """
         Handle OK button
         """
+
+        # Translate the tiff
         layer_title = self.input_title.text()
         netcdf_uri = 'NETCDF:"'+self.file_path+'":'+self.subdataset
         output_uri = self.file_dir + "/" + layer_title + ".tif"
@@ -215,20 +217,28 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             output_uri = self.file_dir
         #self.display_log.append("Result path " + output_uri)
         full_cmd = 'gdal_translate -b ' + self.band + ' -a_srs ' + self.input_crs.authid() +' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
-        subprocess.Popen(full_cmd, shell=True)
-        # if not self.use_input_crs.isChecked():
-        #     transformed_uri = self.file_dir + "/" + layer_title + "_transformed.tif"
-        #     transform_cmd = 'gdalwarp -overwrite -s_srs ' + self.input_authid + ' -t_srs '+ self.output_authid +' -of GTiff ' + output_uri + '' + transformed_uri +''
-        #     subprocess.Popen(transform_cmd, shell=True)
-        #     output_uri = transformed_uri
-        file_info = QFileInfo(output_uri)
+        os.system(full_cmd)
+
+        # Reproject the tiff
+        # gdalwarp -overwrite -s_srs EPSG:32750 -t_srs EPSG:4326 -of GTiff "path/to/input.tif" "path/to/output.tif"
+        opt = '-overwrite '
+        input_srs = '-s_srs ' + self.input_crs.authid() + ' '
+        output_srs = '-t_srs ' + self.output_crs.authid() + ' '
+        input_layer = ' -of GTiff ' + '"' + output_uri + '" '
+        reprojected_uri = self.file_dir + "/" + layer_title + "_" + self.output_crs.description() +".tif"
+        reproject_cmd = 'gdalwarp ' + opt + input_srs + output_srs + input_layer + '"' + reprojected_uri + '"'
+
+        os.system(reproject_cmd)
+
+        # Add the layer
+        file_info = QFileInfo(reprojected_uri)
         base_name = file_info.baseName()
-        result_layer = QgsRasterLayer(output_uri, base_name)
+        result_layer = QgsRasterLayer(reprojected_uri, base_name)
         result_layer.isValid()
         if not result_layer.isValid():
             QgsMessageLog.logMessage("Layer is invalid")
             msg_bar = self.iface.messageBar().createMessage("Warning", "Layer is not loaded automatically")
-            self.uri = output_uri
+            self.uri = reprojected_uri
             self.base_name = base_name
             button_load_result = QPushButton(msg_bar)
             button_load_result.setText("Load Result")

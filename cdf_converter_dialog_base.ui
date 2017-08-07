@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>532</height>
+    <height>446</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,7 +61,11 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLineEdit" name="input_crs_input"/>
+         <widget class="QLineEdit" name="input_crs_input">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_5">
@@ -138,7 +142,11 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLineEdit" name="output_crs_input"/>
+         <widget class="QLineEdit" name="output_crs_input">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_6">
@@ -207,11 +215,20 @@
  </widget>
  <tabstops>
   <tabstop>input_path</tabstop>
+  <tabstop>browse_input</tabstop>
+  <tabstop>input_crsid_input</tabstop>
+  <tabstop>browse_input_crs</tabstop>
   <tabstop>select_subdataset</tabstop>
   <tabstop>select_band</tabstop>
   <tabstop>input_title</tabstop>
+  <tabstop>output_crsid_input</tabstop>
+  <tabstop>browse_output_crs</tabstop>
   <tabstop>use_default_dir</tabstop>
+  <tabstop>output_path</tabstop>
+  <tabstop>browse_output_path</tabstop>
   <tabstop>button_box</tabstop>
+  <tabstop>input_crs_input</tabstop>
+  <tabstop>output_crs_input</tabstop>
  </tabstops>
  <resources/>
  <connections>
