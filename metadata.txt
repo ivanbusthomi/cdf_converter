@@ -4,7 +4,7 @@
 name=CDF Converter
 qgisMinimumVersion=2.0
 description=This is a tool to convert a netcdf data to tiff raster file
-version=1.1.1
+version=1.2.0
 author=Ivan Busthomi
 email=ivanbusthomi@gmail.com
 about=This is a tool to convert a netcdf data to tiff raster file
@@ -12,12 +12,16 @@ tracker=https://github.com/ivanbusthomi/cdf_converter/issues
 repository=https://github.com/ivanbusthomi/cdf_converter
 
 # Uncomment the following line and add your changelog:
-changelog= 1.1.1
+changelog= 1.2.0
+    - add function to reproject result to a certain crs (using gdalwarp)
+    - allow searching crs using epsg code
+    - cleaning tab order
+    1.1.1
     - move crs selection to input
-	- add ui message if output layer failed to be loaded automatically
+    - add ui message if output layer failed to be loaded automatically
 	
-	1.1.0
-	- Added CRS selection
+    1.1.0
+    - Added CRS selection
     - Result automatically added to Table of Content
     - Improve handling closing plugin dialog
     - Improve handling changing the data

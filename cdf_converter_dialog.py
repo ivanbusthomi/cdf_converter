@@ -47,6 +47,9 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.iface = iface
+        # assign initial value of output crs to WGS84 because mostly the result will be used for inasafe realtime,
+        # and it needs an input layer in WGS84
+        self.output_crsid_input.setText('4326')
 
     def on_browse_input_pressed(self):
         """
@@ -67,26 +70,28 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         crs_selector = QgsGenericProjectionSelector()
         crs_selector.show()
         crs_selector.exec_()
-        self.input_authid = str(crs_selector.selectedAuthId())
+        input_authid = str(crs_selector.selectedAuthId())
         selected_crs = QgsCoordinateReferenceSystem()
-        selected_crs.createFromString(self.input_authid)
-        self.input_crs.setText(selected_crs.description() + "    (" + self.input_authid+")")
+        selected_crs.createFromString(input_authid)
+        # self.input_crs.setText(selected_crs.description() + " (" + self.input_authid+")")
         # check if same crs in output crs is checked
         # if self.use_input_crs.isChecked():
         #     self.output_crs.setText(selected_crs.description() + "    (" + self.input_authid+")")
+        self.input_crsid_input.setText(str(selected_crs.postgisSrid()))
 
-    # def on_browse_output_crs_pressed(self):
-    #     """
-    #     define output crs
-    #     :return:
-    #     """
-    #     crs_selector = QgsGenericProjectionSelector()
-    #     crs_selector.show()
-    #     crs_selector.exec_()
-    #     self.output_authid = str(crs_selector.selectedAuthId())
-    #     selected_crs = QgsCoordinateReferenceSystem()
-    #     selected_crs.createFromString(self.output_authid)
-    #     self.output_crs.setText(selected_crs.description() + "    (" + self.output_authid+")")
+    def on_browse_output_crs_pressed(self):
+        """
+        define output crs
+        :return:
+        """
+        crs_selector = QgsGenericProjectionSelector()
+        crs_selector.show()
+        crs_selector.exec_()
+        output_authid = str(crs_selector.selectedAuthId())
+        selected_crs = QgsCoordinateReferenceSystem()
+        selected_crs.createFromString(output_authid)
+        # self.output_crs.setText(selected_crs.description())
+        self.output_crsid_input.setText(str(selected_crs.postgisSrid()))
 
     def on_browse_output_pressed(self):
         """
@@ -114,6 +119,33 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             self.file_dir = os.path.dirname(self.file_path)
             self.output_path.setText(self.file_dir)
             self.get_subdatasets()
+
+    def crs_from_id(self, crsid):
+        """
+        Get CRS name from input CRS ID
+        :param crsid: CRS ID
+        :type crsid: Int
+        :return: crs
+        :rtype: QgsCoordinateReferenceSystem()
+        """
+        new_crs = QgsCoordinateReferenceSystem()
+        new_crs.createFromId(crsid)
+        return new_crs
+
+    def on_output_crsid_input_textChanged(self):
+        try:
+            self.output_crs = self.crs_from_id(int(self.output_crsid_input.text()))
+            self.output_crs_input.setText(self.output_crs.description())
+        except ValueError:
+            self.output_crs_input.setText("CRS not found")
+
+    def on_input_crsid_input_textChanged(self):
+        try:
+            self.input_crs = self.crs_from_id(int(self.input_crsid_input.text()))
+            self.input_crs_input.setText(self.input_crs.description())
+        except ValueError:
+            self.input_crs_input.setText("CRS not found")
+
 
     def get_subdatasets(self):
         """
@@ -158,7 +190,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
                 self.select_band.addItem(band)
         else:
             pass
-            #self.display_log.append("No Timeslice detected")
+
 
     @pyqtSlot(int) # avoid currentIndexChanged signal to be emitted twice
     def on_select_band_currentIndexChanged(self):
@@ -168,15 +200,14 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         """
         self.band = str(self.select_band.currentIndex() + 1)
         self.input_title.setText(self.select_subdataset.currentText()+"_"+self.select_band.currentText())
-        #self.display_log.clear()
-        #self.display_log.append("NetCDF path " + self.file_path)
-        #self.display_log.append("Current SubDataset is " + self.subdataset)
-        #self.display_log.append("Current Band is " + self.band)
+
 
     def accept(self):
         """
         Handle OK button
         """
+
+        # Translate the tiff
         layer_title = self.input_title.text()
         netcdf_uri = 'NETCDF:"'+self.file_path+'":'+self.subdataset
         output_uri = self.file_dir + "/" + layer_title + ".tif"
@@ -185,21 +216,29 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
             self.file_dir = self.output_path.text()
             output_uri = self.file_dir
         #self.display_log.append("Result path " + output_uri)
-        full_cmd = 'gdal_translate -b ' + self.band + ' -a_srs ' + self.input_authid +' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
-        subprocess.Popen(full_cmd, shell=True)
-        # if not self.use_input_crs.isChecked():
-        #     transformed_uri = self.file_dir + "/" + layer_title + "_transformed.tif"
-        #     transform_cmd = 'gdalwarp -overwrite -s_srs ' + self.input_authid + ' -t_srs '+ self.output_authid +' -of GTiff ' + output_uri + '' + transformed_uri +''
-        #     subprocess.Popen(transform_cmd, shell=True)
-        #     output_uri = transformed_uri
-        file_info = QFileInfo(output_uri)
+        full_cmd = 'gdal_translate -b ' + self.band + ' -a_srs ' + self.input_crs.authid() +' -of GTiff ' + netcdf_uri + ' "' + output_uri +'"'
+        os.system(full_cmd)
+
+        # Reproject the tiff
+        # gdalwarp -overwrite -s_srs EPSG:32750 -t_srs EPSG:4326 -of GTiff "path/to/input.tif" "path/to/output.tif"
+        opt = '-overwrite '
+        input_srs = '-s_srs ' + self.input_crs.authid() + ' '
+        output_srs = '-t_srs ' + self.output_crs.authid() + ' '
+        input_layer = ' -of GTiff ' + '"' + output_uri + '" '
+        reprojected_uri = self.file_dir + "/" + layer_title + "_" + self.output_crs.description() +".tif"
+        reproject_cmd = 'gdalwarp ' + opt + input_srs + output_srs + input_layer + '"' + reprojected_uri + '"'
+
+        os.system(reproject_cmd)
+
+        # Add the layer
+        file_info = QFileInfo(reprojected_uri)
         base_name = file_info.baseName()
-        result_layer = QgsRasterLayer(output_uri, base_name)
+        result_layer = QgsRasterLayer(reprojected_uri, base_name)
         result_layer.isValid()
         if not result_layer.isValid():
             QgsMessageLog.logMessage("Layer is invalid")
             msg_bar = self.iface.messageBar().createMessage("Warning", "Layer is not loaded automatically")
-            self.uri = output_uri
+            self.uri = reprojected_uri
             self.base_name = base_name
             button_load_result = QPushButton(msg_bar)
             button_load_result.setText("Load Result")
@@ -235,7 +274,7 @@ class CdfConverterDialog(QtGui.QDialog, FORM_CLASS):
         self.select_band.clear()
         self.select_subdataset.clear()
         self.input_title.clear()
-        self.input_crs.clear()
+        self.input_crs_input.clear()
         #self.display_log.clear()
         self.close()
         reloadPlugin('CdfConverter')
